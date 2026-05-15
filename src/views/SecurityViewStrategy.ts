@@ -1,5 +1,5 @@
 // ====================================================================
-// VIEW STRATEGY — SECURITY (Locks, Doors, Garages, Windows, Smoke/Gas)
+// VIEW STRATEGY — SECURITY (Locks, Doors, Garages, Windows, Smoke/Gas, Moisture)
 // ====================================================================
 
 import type { HomeAssistant } from '../types/homeassistant';
@@ -23,6 +23,7 @@ class Simon42ViewSecurityStrategy extends HTMLElement {
     const garages: string[] = [];
     const windows: string[] = [];
     const smokeGas: string[] = [];
+    const moisture: string[] = [];
 
     for (const id of [
       ...allVisibleByDomain('lock'),
@@ -43,6 +44,7 @@ class Simon42ViewSecurityStrategy extends HTMLElement {
         const entry = Registry.getEntity(id);
         if (entry?.platform && SECURITY_EXCLUDED_PLATFORMS.has(entry.platform)) continue;
         if (deviceClass && ['door', 'window', 'garage_door', 'opening'].includes(deviceClass)) windows.push(id);
+        else if (deviceClass === 'moisture') moisture.push(id);
         else if (deviceClass && ['smoke', 'gas'].includes(deviceClass)) smokeGas.push(id);
       }
     }
@@ -255,6 +257,29 @@ class Simon42ViewSecurityStrategy extends HTMLElement {
       }
       if (inactive.length > 0) {
         cards.push({ type: 'heading', heading: localize('security.smoke_gas_inactive'), heading_style: 'subtitle' });
+        cards.push(...inactive.map((e) => ({ type: 'tile', entity: e, state_content: 'last_changed' })));
+      }
+      if (cards.length > 0) sections.push({ type: 'grid', cards });
+    }
+
+    // Moisture/Leak detectors
+    if (moisture.length > 0) {
+      const active = moisture.filter((e) => hass.states[e]?.state === 'on');
+      const inactive = moisture.filter((e) => hass.states[e]?.state === 'off');
+      const cards: LovelaceCardConfig[] = [];
+
+      cards.push({
+        type: 'heading',
+        heading: localize('security.moisture_title'),
+        heading_style: 'title',
+        icon: active.length > 0 ? 'mdi:water-alert' : 'mdi:water-check',
+      });
+      if (active.length > 0) {
+        cards.push({ type: 'heading', heading: localize('security.moisture_active'), heading_style: 'subtitle' });
+        cards.push(...active.map((e) => ({ type: 'tile', entity: e, state_content: 'last_changed', color: 'blue' })));
+      }
+      if (inactive.length > 0) {
+        cards.push({ type: 'heading', heading: localize('security.moisture_inactive'), heading_style: 'subtitle' });
         cards.push(...inactive.map((e) => ({ type: 'tile', entity: e, state_content: 'last_changed' })));
       }
       if (cards.length > 0) sections.push({ type: 'grid', cards });
