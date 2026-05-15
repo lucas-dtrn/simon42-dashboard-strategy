@@ -6,6 +6,8 @@
 // used throughout the strategy codebase.
 // ====================================================================
 
+import type { LovelaceCardConfig } from './lovelace';
+
 // -- Section Ordering -------------------------------------------------
 
 export type SectionKey = 'overview' | 'custom_cards' | 'areas' | 'weather' | 'energy';
@@ -80,6 +82,12 @@ export interface Simon42StrategyConfig {
 
   // Custom badges (shown in header next to person chips)
   custom_badges?: CustomBadge[];
+
+  /** Max width of the sticky sections-view footer (px). HA default is 600 if omitted. */
+  dashboard_footer_max_width?: number;
+
+  /** Footer card YAML only (`footer.card`); width uses `dashboard_footer_max_width`. */
+  dashboard_footer?: DashboardViewFooter;
 }
 
 // -- Area Management --------------------------------------------------
@@ -116,6 +124,17 @@ export interface CustomView {
   /** Parsed Lovelace view config (generated from yaml) */
   parsed_config?: Record<string, any> | null;
   /** YAML parse error message, if any */
+  _yaml_error?: string;
+}
+
+// -- Dashboard Footer (sections view primitive) ------------------------
+
+export interface DashboardViewFooter {
+  /** Raw YAML for `footer.card` only */
+  yaml?: string;
+  /** Parsed Lovelace card config */
+  parsed_config?: LovelaceCardConfig | null;
+  /** YAML parse error message, if any (editor-only) */
   _yaml_error?: string;
 }
 
@@ -240,6 +259,7 @@ export interface StrategyViewConfig {
   dense_section_placement?: boolean;
   badges?: Record<string, any>[];
   header?: Record<string, any>;
+  footer?: Record<string, any>;
   sections?: Record<string, any>[];
   cards?: Record<string, any>[];
   strategy?: { type: string; [key: string]: any };

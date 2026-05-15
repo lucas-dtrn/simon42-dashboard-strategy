@@ -146,9 +146,15 @@ class Simon42DashboardStrategy extends HTMLElement {
 
     t(`generate() done — ${views.length} views`);
 
+    const { mergeViewFooter, resolveDashboardFooter } = await import('./utils/view-footer');
+    const dashboardFooterResolved = await resolveDashboardFooter(config);
+    const viewsWithFooter = dashboardFooterResolved
+      ? views.map((v) => mergeViewFooter(v, dashboardFooterResolved))
+      : views;
+
     return {
       title: localize('dashboard.title'),
-      views,
+      views: viewsWithFooter,
     };
   }
 

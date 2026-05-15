@@ -56,6 +56,7 @@ export interface LovelaceViewConfig {
   dense_section_placement?: boolean;
   badges?: (string | Partial<LovelaceBadgeConfig>)[];
   header?: LovelaceViewHeaderConfig;
+  footer?: LovelaceViewFooterConfig;
   sections?: LovelaceSectionConfig[];
   cards?: LovelaceCardConfig[];
   strategy?: LovelaceStrategyConfig;
@@ -91,6 +92,12 @@ export interface LovelaceViewHeaderConfig {
   layout?: 'start' | 'center' | 'responsive';
   badges_position?: 'bottom' | 'top';
   badges_wrap?: 'wrap' | 'nowrap';
+}
+
+/** Sticky footer for `type: sections` views (Home Assistant UI). */
+export interface LovelaceViewFooterConfig {
+  card?: LovelaceCardConfig;
+  max_width?: number;
 }
 
 export interface LovelaceViewBackgroundConfig {

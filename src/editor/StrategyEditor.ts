@@ -17,11 +17,13 @@ import type {
   CustomBadge,
   RoomEntities,
   SectionKey,
+  DashboardViewFooter,
 } from '../types/strategy';
 import { DEFAULT_SECTIONS_ORDER } from '../types/strategy';
 import type { AreaRegistryEntry, EntityRegistryEntry } from '../types/registries';
 import { localize } from '../utils/localize';
 import { isBadgeCandidate, isDefaultShowName, resolveShowName } from '../utils/badge-utils';
+import { isCardConfig, parseDashboardFooterYamlPayload } from '../utils/view-footer';
 
 // -- Supporting types for the editor ------------------------------------
 
@@ -1027,6 +1029,7 @@ class Simon42DashboardStrategyEditor extends LitElement {
         ${this._renderSectionOrderPanel()}
         ${this._renderCustomCardsSection()}
         ${this._renderCustomBadgesSection()}
+        ${this._renderDashboardFooterSection()}
         ${this._renderCustomViewsSection()}
       </div>
     `;
@@ -1643,6 +1646,44 @@ class Simon42DashboardStrategyEditor extends LitElement {
           ${localize('editor.add_custom_badge')}
         </button>
         <div class="description">${localize('editor.custom_badges_help')}</div>
+      </div>
+    `;
+  }
+
+  private _renderDashboardFooterSection(): TemplateResult {
+    const dashboardFooter = this._config.dashboard_footer;
+    const footer = dashboardFooter ?? {};
+    const validationMsg = footer._yaml_error
+      ? html`<span style="color: var(--error-color);">&#x274C; ${footer._yaml_error}</span>`
+      : footer.yaml
+        ? html`<span style="color: var(--success-color, green);">&#x2705; ${localize('editor.yaml_valid')}</span>`
+        : nothing;
+
+    const mw = this._config.dashboard_footer_max_width;
+
+    return html`
+      <div class="section">
+        <div class="section-title">${localize('editor.section_dashboard_footer')}</div>
+
+        <div class="form-row" style="align-items: center; gap: 12px;">
+          <label style="flex: 0 0 auto;">${localize('editor.dashboard_footer_max_width_label')}</label>
+          <input type="number" min="120" max="2400" step="1"
+            placeholder="600"
+            .value=${mw !== undefined && mw !== null ? String(mw) : ''}
+            style="max-width: 120px;"
+            @change=${(e: Event) => this._updateDashboardFooterMaxWidth((e.target as HTMLInputElement).value)} />
+        </div>
+        <div class="description">${localize('editor.dashboard_footer_max_width_help')}</div>
+
+        <textarea rows="10" placeholder=${localize('editor.dashboard_footer_placeholder')}
+          .value=${footer.yaml || ''}
+          style="width: 100%; margin-top: 12px;"
+          @change=${(e: Event) =>
+            this._updateDashboardFooterYaml((e.target as HTMLTextAreaElement).value)}></textarea>
+        <div class="custom-item-validation" style="margin-top: 4px;">
+          ${validationMsg}
+        </div>
+        <div class="description">${localize('editor.dashboard_footer_help')}</div>
       </div>
     `;
   }
@@ -2525,6 +2566,72 @@ class Simon42DashboardStrategyEditor extends LitElement {
     this._fireConfigChanged(newConfig);
   }
 
+  private _updateDashboardFooterYaml(yamlString: string): void {
+    const updated: DashboardViewFooter = { ...(this._config.dashboard_footer || {}), yaml: yamlString };
+    delete updated._yaml_error;
+    let migrationMaxWidth: number | undefined;
+
+    if (yamlString.trim()) {
+      try {
+        const parsed = yaml.load(yamlString);
+        if (isCardConfig(parsed)) {
+          updated.parsed_config = parsed;
+        } else {
+          const extracted = parseDashboardFooterYamlPayload(parsed);
+          if (extracted.card) {
+            updated.parsed_config = extracted.card;
+            if (
+              extracted.legacyMaxWidth != null &&
+              this._config.dashboard_footer_max_width === undefined
+            ) {
+              migrationMaxWidth = extracted.legacyMaxWidth;
+            }
+          } else {
+            updated._yaml_error = 'YAML muss eine Karten-Konfiguration sein (Objekt mit type: …)';
+            updated.parsed_config = undefined;
+          }
+        }
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message.split('\n')[0] : 'Ungültiges YAML';
+        updated._yaml_error = message || 'Ungültiges YAML';
+        updated.parsed_config = undefined;
+      }
+    } else {
+      updated.parsed_config = undefined;
+    }
+
+    const newConfig: Simon42StrategyConfig = { ...this._config };
+    if (migrationMaxWidth != null) {
+      newConfig.dashboard_footer_max_width = migrationMaxWidth;
+    }
+    if (!yamlString.trim() && !updated.parsed_config) {
+      delete newConfig.dashboard_footer;
+    } else {
+      newConfig.dashboard_footer = updated;
+    }
+
+    this._config = newConfig;
+    this._fireConfigChanged(newConfig);
+  }
+
+  private _updateDashboardFooterMaxWidth(raw: string): void {
+    const trimmed = raw.trim();
+    const newConfig: Simon42StrategyConfig = { ...this._config };
+
+    if (trimmed === '') {
+      delete newConfig.dashboard_footer_max_width;
+    } else {
+      const n = Number(trimmed);
+      if (!Number.isFinite(n) || n <= 0) {
+        return;
+      }
+      newConfig.dashboard_footer_max_width = Math.round(n);
+    }
+
+    this._config = newConfig;
+    this._fireConfigChanged(newConfig);
+  }
+
   // ====================================================================
   // AREA MANAGEMENT
   // ====================================================================
@@ -3034,6 +3141,11 @@ class Simon42DashboardStrategyEditor extends LitElement {
         delete clean._yaml_error;
         return clean;
       });
+    }
+    if (cleanConfig.dashboard_footer) {
+      const df = { ...cleanConfig.dashboard_footer };
+      delete df._yaml_error;
+      cleanConfig.dashboard_footer = df;
     }
 
     this._config = cleanConfig;
