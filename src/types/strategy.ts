@@ -52,6 +52,7 @@ export interface Simon42StrategyConfig {
   // Layout
   sections_order?: SectionKey[]; // default: DEFAULT_SECTIONS_ORDER
   summaries_columns?: 2 | 4; // default: 2
+  stretch_wrapping_summaries?: boolean; // default: false
 
   // Favorites display
   favorites_show_state?: boolean; // default: false

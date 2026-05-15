@@ -121,6 +121,8 @@
     "columns_2": "2 columns (2x2 grid)",
     "columns_4": "4 columns (1x4 row)",
     "columns_desc": "Choose how summary cards should be displayed. The layout adjusts automatically when cards are hidden.",
+    "stretch_wrapping_summaries": "Stretch wrapping rows to full width",
+    "stretch_wrapping_summaries_desc": "When the last row is not completely filled, the cards on that row share the full width evenly.",
     "show_light_summary": "Show light summary",
     "group_lights_by_floors": "Group lights by floors",
     "group_lights_by_floors_desc": "Groups lights in the lights view by floors. Each floor gets its own section with on/off buttons.",

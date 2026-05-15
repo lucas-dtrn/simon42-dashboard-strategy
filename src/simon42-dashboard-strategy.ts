@@ -9,6 +9,9 @@
 import type { HomeAssistant } from './types/homeassistant';
 import type { Simon42StrategyConfig } from './types/strategy';
 import type { LovelaceConfig, LovelaceViewConfig } from './types/lovelace';
+import { ensureSimon42StrategyGlobalStyles } from './styles/global-styles';
+
+ensureSimon42StrategyGlobalStyles();
 
 const STRATEGY_VERSION = '1.3.4-beta.9';
 

@@ -1253,6 +1253,7 @@ class Simon42DashboardStrategyEditor extends LitElement {
 
   private _renderSummariesSection(): TemplateResult {
     const summariesColumns = this._config.summaries_columns || 2;
+    const stretchWrappingSummaries = this._config.stretch_wrapping_summaries === true;
     const showLightSummary = this._config.show_light_summary !== false;
     const groupLightsByFloors = this._config.group_lights_by_floors === true;
     const nestedLightGroups = this._config.nested_light_groups === true;
@@ -1282,6 +1283,14 @@ class Simon42DashboardStrategyEditor extends LitElement {
           <label for="summaries-4-columns">${localize('editor.columns_4')}</label>
         </div>
         <div class="description">${localize('editor.columns_desc')}</div>
+
+        ${this._renderCheckbox(
+          'stretch-wrapping-summaries',
+          localize('editor.stretch_wrapping_summaries'),
+          stretchWrappingSummaries,
+          (checked) => this._toggleChanged('stretch_wrapping_summaries', checked, false),
+        )}
+        <div class="description">${localize('editor.stretch_wrapping_summaries_desc')}</div>
 
         ${this._renderCheckbox('show-light-summary', localize('editor.show_light_summary'), showLightSummary,
           (checked) => this._toggleChanged('show_light_summary', checked, true))}

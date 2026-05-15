@@ -121,6 +121,8 @@
     "columns_2": "2 Spalten (2x2 Grid)",
     "columns_4": "4 Spalten (1x4 Reihe)",
     "columns_desc": "Wähle aus, wie die Zusammenfassungskarten angezeigt werden sollen. Das Layout passt sich automatisch an, wenn Karten ausgeblendet werden.",
+    "stretch_wrapping_summaries": "Umbrechende Zeilen auf volle Breite strecken",
+    "stretch_wrapping_summaries_desc": "Wenn die letzte Zeile nicht vollständig gefüllt ist, teilen sich die Karten diese Zeile gleichmäßig über die gesamte Breite.",
     "show_light_summary": "Licht-Zusammenfassung anzeigen",
     "group_lights_by_floors": "Lichter nach Etagen gruppieren",
     "group_lights_by_floors_desc": "Gruppiert die Lichter in der Lichter-Ansicht nach Etagen. Jede Etage erhält einen eigenen Bereich mit Ein-/Ausschalt-Button.",

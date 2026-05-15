@@ -11,6 +11,7 @@ import type { HomeAssistant } from '../types/homeassistant';
 import type { Simon42StrategyConfig, CustomCard } from '../types/strategy';
 import type { LovelaceCardConfig, LovelaceSectionConfig } from '../types/lovelace';
 import { localize } from '../utils/localize';
+import { getSummaryCardColumnWidths } from '../utils/summary-grid';
 
 export interface OverviewSectionParams {
   someSensorId: string | null;
@@ -148,23 +149,19 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
       heading: localize('sections.summaries'),
     });
 
-    // Layout logic: adapt to number of cards
-    if (summariesColumns === 4) {
-      // 4 columns: all cards in a single row
-      cards.push({
-        type: 'horizontal-stack',
-        cards: summaryCards,
-      });
-    } else {
-      // 2 columns: split into rows of 2
-      for (let i = 0; i < summaryCards.length; i += 2) {
-        const rowCards = summaryCards.slice(i, i + 2);
-        cards.push({
-          type: 'horizontal-stack',
-          cards: rowCards,
-        });
-      }
-    }
+    const columnWidths = getSummaryCardColumnWidths(
+      summaryCards.length,
+      summariesColumns,
+      config.stretch_wrapping_summaries === true,
+    );
+    cards.push(
+      ...summaryCards.map((card, index) => ({
+        ...card,
+        grid_options: {
+          columns: columnWidths[index],
+        },
+      })),
+    );
   }
 
   // Favorites section
