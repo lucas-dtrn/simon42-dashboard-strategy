@@ -8,6 +8,7 @@ import { Registry } from '../Registry';
 import { trackHassUpdate, debugLog, timeStart, timeEnd } from '../utils/debug';
 import { localize } from '../utils/localize';
 import { getBatteryEntities, SECURITY_EXCLUDED_PLATFORMS } from '../utils/entity-filter';
+import { ensureSimon42StrategyGlobalStylesForElement } from '../styles/global-styles';
 
 declare global {
   interface Window {
@@ -92,6 +93,11 @@ class Simon42SummaryCard extends LitElement {
   setConfig(config: SummaryCardConfig): void {
     this._config = config;
     this._relevantEntityIds = null;
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    ensureSimon42StrategyGlobalStylesForElement(this);
   }
 
   protected willUpdate(changedProps: PropertyValues): void {
