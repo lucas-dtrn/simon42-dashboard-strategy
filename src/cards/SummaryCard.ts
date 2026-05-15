@@ -69,9 +69,9 @@ class Simon42SummaryCard extends LitElement {
       gap: 8px;
       height: 100%;
       box-sizing: border-box;
-      --ha-card-border-width: 0;
       background: var(--ha-card-background, var(--card-background-color, #fff));
       border-radius: var(--ha-card-border-radius, 12px);
+      overflow: hidden;
     }
     ha-card:active {
       transform: scale(0.97);
@@ -324,6 +324,7 @@ class Simon42SummaryCard extends LitElement {
 
     return html`
       <ha-card @click=${() => this._handleClick()}>
+        <ha-ripple style="--ha-ripple-color: ${colorCss}"></ha-ripple>
         <ha-icon class="icon" .icon=${display.icon} style="color: ${colorCss}"></ha-icon>
         <div class="name">${display.name}</div>
       </ha-card>
