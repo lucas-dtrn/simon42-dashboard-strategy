@@ -110,7 +110,7 @@ class Simon42ViewRoomStrategy extends HTMLElement {
         roomEntities.scenes.push(entityId);
         continue;
       }
-      if (domain === 'climate') {
+      if (domain === 'climate' || domain === 'humidifier') {
         roomEntities.climate.push(entityId);
         continue;
       }
@@ -473,15 +473,31 @@ class Simon42ViewRoomStrategy extends HTMLElement {
       state_content: 'last_changed',
     }));
 
-    domainSection(roomEntities.climate, localize('room.climate'), 'mdi:thermostat', (e) => ({
-      type: 'tile',
-      entity: e,
-      name: stripAreaName(e, area, hass),
-      features: [{ type: 'climate-hvac-modes' }],
-      features_position: 'inline',
-      vertical: false,
-      state_content: ['hvac_action', 'current_temperature'],
-    }));
+    domainSection(roomEntities.climate, localize('room.climate'), 'mdi:thermostat', (e) => {
+      if (e.startsWith('humidifier.')) {
+        return {
+          type: 'tile',
+          entity: e,
+          name: stripAreaName(e, area, hass),
+          features: [{ type: 'humidifier-toggle' }],
+          features_position: 'inline',
+          vertical: false,
+          state_content: ['action', 'current_humidity'],
+          grid_options: {
+            columns: 12,
+          },
+        };
+      }
+      return {
+        type: 'tile',
+        entity: e,
+        name: stripAreaName(e, area, hass),
+        features: [{ type: 'climate-hvac-modes' }],
+        features_position: 'inline',
+        vertical: false,
+        state_content: ['hvac_action', 'current_temperature'],
+      };
+    });
 
     domainSection(roomEntities.covers, localize('room.covers'), 'mdi:window-shutter', (e) => ({
       type: 'tile',
